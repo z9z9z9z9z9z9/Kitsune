@@ -11,6 +11,17 @@ const WatchTrailer = ({ videoHref }: { videoHref: string }) => {
 
   if (!videoHref) return <></>;
 
+  let embedUrl = videoHref;
+  if (videoHref.includes("youtube.com/watch?v=")) {
+    const videoId = videoHref.split("v=")[1]?.split("&")[0];
+    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  } else if (videoHref.includes("youtu.be/")) {
+    const videoId = videoHref.split("youtu.be/")[1]?.split("?")[0];
+    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  } else if (!videoHref.includes("embed") && !videoHref.startsWith("http")) {
+    embedUrl = `https://www.youtube.com/embed/${videoHref}?autoplay=1`;
+  }
+
   return (
     <>
       <Button
@@ -36,12 +47,15 @@ const WatchTrailer = ({ videoHref }: { videoHref: string }) => {
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="relative w-full max-w-4xl aspect-video mx-4 md:mx-0"
             >
-              <motion.button className="absolute -top-16 right-0 text-white text-xl bg-neutral-900/50 ring-1 backdrop-blur-md rounded-full p-2 dark:bg-neutral-100/50 dark:text-black">
+              <motion.button
+                onClick={() => setIsVideoOpen(false)}
+                className="absolute -top-12 right-0 text-white text-xl bg-neutral-900/80 ring-1 backdrop-blur-md rounded-full p-2 hover:bg-neutral-800"
+              >
                 <XIcon className="size-5" />
               </motion.button>
-              <div className="size-full border-2 border-white rounded-2xl overflow-hidden isolate z-[1] relative">
+              <div className="size-full border-2 border-white/20 rounded-2xl overflow-hidden isolate z-[1] relative shadow-2xl">
                 <iframe
-                  src={videoHref}
+                  src={embedUrl}
                   className="size-full rounded-2xl"
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

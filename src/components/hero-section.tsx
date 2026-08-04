@@ -9,32 +9,32 @@ import {
 
 import Container from "./container";
 import { Button } from "./ui/button";
-import parse from "html-react-parser";
 
 import React from "react";
-import { ArrowLeft, ArrowRight, Captions, Mic } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
 import { ButtonLink } from "./common/button-link";
-import { SpotlightAnime } from "@/types/anime";
+import { MediaList } from "@/types/miruro-api";
 import { Badge } from "./ui/badge";
 
 type IHeroSectionProps = {
-  spotlightAnime: SpotlightAnime[];
+  spotlightAnime: MediaList[];
   isDataLoading: boolean;
 };
 
 const HeroSection = (props: IHeroSectionProps) => {
   const [api, setApi] = React.useState<CarouselApi>();
 
-  if (props.isDataLoading) return <LoadingSkeleton />;
+  if (props.isDataLoading || !props.spotlightAnime?.length)
+    return <LoadingSkeleton />;
 
   return (
     <div className="h-[80vh] w-full relative">
-      <Carousel className="w-full" setApi={setApi} opts={{}}>
-        <CarouselContent className="">
-          {props?.spotlightAnime.map((anime, index) => (
-            <CarouselItem key={index}>
+      <Carousel className="w-full" setApi={setApi} opts={{ loop: true }}>
+        <CarouselContent>
+          {props.spotlightAnime.map((anime, index) => (
+            <CarouselItem key={anime.id || index}>
               <HeroCarouselItem anime={anime} />
             </CarouselItem>
           ))}
@@ -60,82 +60,62 @@ const HeroSection = (props: IHeroSectionProps) => {
   );
 };
 
-const HeroCarouselItem = ({ anime }: { anime: SpotlightAnime }) => {
-  // const [isHovered, setIsHovered] = useState(false);
-
-  // const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null); // Use ref to store the timeout ID
-
-  // const handleMouseEnter = () => {
-  //   hoverTimeoutRef.current = setTimeout(() => {
-  //     setIsHovered(true);
-  //   }, 1500);
-  // };
-
-  // const handleMouseLeave = () => {
-  //   if (hoverTimeoutRef.current) {
-  //     clearTimeout(hoverTimeoutRef.current); // Clear the timeout when mouse leaves
-  //   }
-  //   setIsHovered(false);
-  // };
+const HeroCarouselItem = ({ anime }: { anime: MediaList }) => {
+  const bgImage =
+    anime.bannerImage ||
+    anime.coverImage?.extraLarge ||
+    anime.coverImage?.large ||
+    "";
+  const title =
+    anime.title?.english || anime.title?.romaji || anime.title?.native || "Untitled";
 
   return (
     <div
-      className={`w-full bg-cover bg-no-repeat bg-center h-[80vh] relative`}
-      style={{ backgroundImage: `url(${anime?.poster})` }}
-    // onMouseEnter={handleMouseEnter}
-    // onMouseLeave={handleMouseLeave}
+      className="w-full bg-cover bg-no-repeat bg-center h-[80vh] relative"
+      style={{ backgroundImage: `url(${bgImage})` }}
     >
-      {/* {isHovered && (
-        <div className="absolute inset-0 z-0">
-          <iframe
-            className="w-full h-full object-cover"
-            src={`https://www.youtube.com/embed/${anime?.trailer.id}?autoplay=1&mute=0&controls=0&modestbranding=1`}
-            title="YouTube video player"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          ></iframe>
-        </div>
-      )} */}
-
       {/* Gradient Overlay */}
-      <div className="absolute h-full w-full inset-0 m-auto bg-gradient-to-r from-slate-900 to-transparent z-10"></div>
-      <div className="absolute h-full w-full inset-0 m-auto bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
+      <div className="absolute h-full w-full inset-0 m-auto bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent z-10"></div>
+      <div className="absolute h-full w-full inset-0 m-auto bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10"></div>
 
-      {/* Content Section (remains outside the hover area) */}
-      <div className="w-full h-[calc(100%-5.25rem)]  relative z-20">
+      {/* Content Section */}
+      <div className="w-full h-[calc(100%-5.25rem)] relative z-20">
         <Container className="w-full h-full flex flex-col justify-end md:justify-center pb-10">
-          <div className="space-y-2 lg:w-[40vw]">
-            {/* Title and description moved inside the hover area */}
-            <h1 className="text-4xl font-black">{anime?.name}</h1>
+          <div className="space-y-3 lg:w-[45vw]">
+            <h1 className="text-3xl md:text-5xl font-black text-white line-clamp-2">
+              {title}
+            </h1>
 
-            <div className="flex flex-row items-center space-x-2 ">
-              {anime.episodes.sub && (
-                <Badge className="bg-red-200 flex flex-row items-center space-x-0.5">
-                  <Captions size={"16"} />
-                  <span>{anime.episodes.sub}</span>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {anime.format && (
+                <Badge className="bg-[#e9376b] text-white font-bold">
+                  {anime.format}
                 </Badge>
               )}
-              {anime.episodes.dub && (
-                <Badge className="bg-green-200 flex flex-row items-center space-x-0.5">
-                  <Mic size={"16"} />
-                  <span>{anime.episodes.dub}</span>
+              {anime.seasonYear && (
+                <Badge variant="outline" className="text-gray-300 border-gray-600">
+                  {anime.season ? `${anime.season} ` : ""}{anime.seasonYear}
                 </Badge>
               )}
+              {!!anime.averageScore && (
+                <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">
+                  ⭐ {anime.averageScore}% Score
+                </Badge>
+              )}
+              {anime.genres?.slice(0, 3).map((g) => (
+                <span key={g} className="text-gray-400 text-xs">
+                  • {g}
+                </span>
+              ))}
             </div>
 
-            <p className="text-lg line-clamp-4">
-              {parse(anime?.description as string)}
-            </p>
-            <div className="flex items-center gap-5 !mt-5">
+            <div className="flex items-center gap-5 !mt-6">
               <ButtonLink
                 href={`${ROUTES.ANIME_DETAILS}/${anime.id}`}
                 className="h-10 text-md bg-[#e9376b] text-white hover:bg-[#e9376b]"
               >
                 Learn More
               </ButtonLink>
-              {/* <ButtonLink href={`${ROUTES.WATCH}?anime=${anime.id}&episode=${}`} className="h-10 text-md" variant={"secondary"}>
-                Watch
-              </ButtonLink> */}
             </div>
           </div>
         </Container>
@@ -159,7 +139,7 @@ const LoadingSkeleton = () => {
           </div>
         </Container>
       </div>
-      <div className="absolute hidden md:flex items-center gap-5 right-10 bottom-0 z-50 isolate">
+      <div className="absolute hidden md:flex items-center gap-5 right-10 bottom-32 z-50 isolate">
         <span className="h-10 w-10 rounded-full animate-pulse bg-slate-700"></span>
         <span className="h-10 w-10 rounded-full animate-pulse bg-slate-700"></span>
       </div>

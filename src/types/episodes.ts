@@ -8,13 +8,15 @@ export interface Episode {
   episodeId: string;
   number: number;
   isFiller: boolean;
+  hasSub?: boolean;
+  hasDub?: boolean;
 }
 
 export interface IEpisodeSource {
   headers: {
     Referer: string;
   };
-  tracks: Track[];
+  subtitles: Track[];
   intro: Intro;
   outro: Outro;
   sources: Source[];
@@ -40,10 +42,8 @@ export interface IEpisodeServers {
 }
 
 export interface Track {
-  file: string;
-  label?: string;
-  kind: string;
-  default?: boolean;
+  lang: string;
+  url: string;
 }
 
 export interface Intro {

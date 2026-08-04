@@ -56,10 +56,7 @@ const AnimeCarousel = (props: Props) => {
                 <AnimeCard
                   key={idx}
                   title={ani.name}
-                  subTitle={ani.type}
-                  episodeCard
-                  sub={ani.episodes.sub}
-                  dub={ani.episodes.dub}
+                  format={ani.type}
                   href={`${ROUTES.ANIME_DETAILS}/${ani.id}`}
                   poster={ani.poster}
                   className="self-center justify-self-center min-w-[12rem]"

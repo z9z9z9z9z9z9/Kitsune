@@ -1,19 +1,20 @@
 import React from "react";
 import Container from "./container";
 import FeaturedCollectionCard from "./featured-collection-card";
-import { IAnime, LatestCompletedAnime } from "@/types/anime";
+import { MediaList } from "@/types/miruro-api";
+
+type CategoryItem = {
+  title: string;
+  anime: MediaList[];
+};
 
 type Props = {
-  featuredAnime: [
-    mostFavorite: { title: string; anime: IAnime[] },
-    mostPopular: { title: string; anime: IAnime[] },
-    latestCompleted: { title: string; anime: LatestCompletedAnime[] }
-  ];
+  featuredAnime: CategoryItem[];
   loading: boolean;
 };
 
 const FeaturedCollection = ({ featuredAnime, loading }: Props) => {
-  if (loading) return <LoadingSkeleton />;
+  if (loading || !featuredAnime?.length) return <LoadingSkeleton />;
   return (
     <Container className="flex flex-col gap-5 items-center lg:items-start py-5">
       <h5 className="text-2xl font-bold">Featured Collection</h5>

@@ -25,6 +25,7 @@ export interface Info {
   malId: number;
   name: string;
   poster: string;
+  bannerImage?: string;
   description: string;
   stats: Stats;
   promotionalVideos: PromotionalVideo[];
